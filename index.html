@@ -57,38 +57,38 @@
         const searchBar = document.getElementById('search-bar');
         const speakBtn = document.getElementById('speak-btn');
 
-        function speakResponse(response) {
-            let speech = new SpeechSynthesisUtterance(response);
-            speech.lang = "en-US";
-            speech.pitch = 1.2; // Make it sound more feminine
-            speech.rate = 1.0;
-            speechSynthesis.speak(speech);
+        function sendCommand(command) {
+            fetch('/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: command })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response:", data.message);
+            });
         }
 
         function startListening() {
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = "en-US";
             recognition.start();
-            visualizer.style.display = "block"; // Show visualizer when listening
+            visualizer.style.display = "block";
 
             recognition.onresult = function(event) {
                 let command = event.results[0][0].transcript.toLowerCase();
                 searchBar.value = command;
-                visualizer.style.display = "none"; // Hide visualizer after speaking
-
-                if (command.includes("open youtube")) {
-                    speakResponse("Opening YouTube...");
-                    window.open("https://youtube.com", "_blank");
-                } else if (command.includes("open google")) {
-                    speakResponse("Opening Google...");
-                    window.open("https://google.com", "_blank");
-                } else {
-                    speakResponse("Sorry, I don't know that command yet.");
-                }
+                visualizer.style.display = "none";
+                sendCommand(command);
             };
         }
 
         speakBtn.addEventListener("click", startListening);
+        searchBar.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendCommand(searchBar.value);
+            }
+        });
     </script>
 </body>
 </html>
