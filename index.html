@@ -3,95 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will You Forgive Me?</title>
+    <title>Ruby - Voice Assistant</title>
     <style>
         body {
+            background-color: black;
+            color: white;
             text-align: center;
             font-family: Arial, sans-serif;
-            background-color: #f5ebe0; /* Beige background */
-            transition: 0.5s ease-in-out;
-            overflow: hidden;
         }
-        #container {
-            position: relative;
-            margin-top: 20vh;
+        #visualizer {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to top, cyan, transparent);
+            display: none;
+            animation: pulse 1s infinite;
         }
-        h1 {
-            color: #5c4033; /* Dark brown */
-            font-size: 2em;
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
         }
-        .btn {
-            font-size: 1.5em;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            margin: 20px;
+        #search-bar {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+            margin-top: 20px;
             border-radius: 10px;
-            position: absolute;
+            border: none;
+            outline: none;
+            background: #222;
+            color: cyan;
         }
-        #yes {
-            background-color: #f5d7b7; /* Light beige */
-            color: #5c4033;
-            left: 40%;
-        }
-        #no {
-            background-color: #d4a373; /* Light brown */
-            color: #5c4033;
-            left: 55%;
-        }
-        #no span {
-            font-size: 1.2em;
-        }
-        #flowers {
-            display: none;
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: auto;
-        }
-        #yay {
-            display: none;
-            position: absolute;
-            top: 60%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2em;
-            font-weight: bold;
-            color: #5c4033; /* Dark brown */
-        }
-        .blur {
-            filter: blur(5px);
+        #speak-btn {
+            background: cyan;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <h1 id="question">Will you forgive me?</h1>
-        <button id="yes" class="btn" onclick="showFlowers()">Yes</button>
-        <button id="no" class="btn" onclick="moveNoButton()">No <span>😢</span></button>
-    </div>
-
-    <img id="flowers" src="https://i.imgur.com/JZjxgq3.png" alt="Bouquet of roses and tulips">
-    <div id="yay">Yay!</div>
+    <h1>Ruby - Your AI Assistant</h1>
+    <div id="visualizer"></div>
+    <input type="text" id="search-bar" placeholder="Ask me anything...">
+    <button id="speak-btn">🎤 Speak</button>
 
     <script>
-        function showFlowers() {
-            document.getElementById("flowers").style.display = "block";
-            document.getElementById("yay").style.display = "block";
-            document.getElementById("container").classList.add("blur");
+        const visualizer = document.getElementById('visualizer');
+        const searchBar = document.getElementById('search-bar');
+        const speakBtn = document.getElementById('speak-btn');
+
+        function speakResponse(response) {
+            let speech = new SpeechSynthesisUtterance(response);
+            speech.lang = "en-US";
+            speech.pitch = 1.2; // Make it sound more feminine
+            speech.rate = 1.0;
+            speechSynthesis.speak(speech);
         }
 
-        function moveNoButton() {
-            let noButton = document.getElementById("no");
-            let maxWidth = window.innerWidth - noButton.offsetWidth;
-            let maxHeight = window.innerHeight - noButton.offsetHeight;
-            let newX = Math.random() * maxWidth;
-            let newY = Math.random() * maxHeight;
-            noButton.style.left = `${newX}px`;
-            noButton.style.top = `${newY}px`;
+        function startListening() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = "en-US";
+            recognition.start();
+            visualizer.style.display = "block"; // Show visualizer when listening
+
+            recognition.onresult = function(event) {
+                let command = event.results[0][0].transcript.toLowerCase();
+                searchBar.value = command;
+                visualizer.style.display = "none"; // Hide visualizer after speaking
+
+                if (command.includes("open youtube")) {
+                    speakResponse("Opening YouTube...");
+                    window.open("https://youtube.com", "_blank");
+                } else if (command.includes("open google")) {
+                    speakResponse("Opening Google...");
+                    window.open("https://google.com", "_blank");
+                } else {
+                    speakResponse("Sorry, I don't know that command yet.");
+                }
+            };
         }
+
+        speakBtn.addEventListener("click", startListening);
     </script>
 </body>
 </html>
