@@ -3,92 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruby - Voice Assistant</title>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            text-align: center;
-            font-family: Arial, sans-serif;
-        }
-        #visualizer {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(to top, cyan, transparent);
-            display: none;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-        #search-bar {
-            width: 80%;
-            padding: 10px;
-            font-size: 18px;
-            margin-top: 20px;
-            border-radius: 10px;
-            border: none;
-            outline: none;
-            background: #222;
-            color: cyan;
-        }
-        #speak-btn {
-            background: cyan;
-            color: black;
-            border: none;
-            padding: 10px 20px;
-            font-size: 18px;
-            margin-top: 20px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-    </style>
+    <title>Mini Netflix</title>
 </head>
 <body>
-    <h1>Ruby - Your AI Assistant</h1>
-    <div id="visualizer"></div>
-    <input type="text" id="search-bar" placeholder="Ask me anything...">
-    <button id="speak-btn">🎤 Speak</button>
-
-    <script>
-        const visualizer = document.getElementById('visualizer');
-        const searchBar = document.getElementById('search-bar');
-        const speakBtn = document.getElementById('speak-btn');
-
-        function sendCommand(command) {
-            fetch('/command', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: command })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Response:", data.message);
-            });
-        }
-
-        function startListening() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = "en-US";
-            recognition.start();
-            visualizer.style.display = "block";
-
-            recognition.onresult = function(event) {
-                let command = event.results[0][0].transcript.toLowerCase();
-                searchBar.value = command;
-                visualizer.style.display = "none";
-                sendCommand(command);
-            };
-        }
-
-        speakBtn.addEventListener("click", startListening);
-        searchBar.addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                sendCommand(searchBar.value);
-            }
-        });
-    </script>
+    <h2>Available Videos</h2>
+    {% for video in videos %}
+        <p>{{ video }}</p>
+        <video width="320" height="240" controls>
+            <source src="{{ url_for('serve_video', filename=video) }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <hr>
+    {% endfor %}
 </body>
 </html>
